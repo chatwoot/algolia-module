@@ -131,15 +131,16 @@ const initialize = async (userOptions: DocSearchOptions) => {
       ? userOptions.navigator
       : {
           navigate: ({ itemUrl }) => {
-            const url = new URL(window.location.origin + itemUrl);
+            const { pathname: hitPathname } = new URL(
+              window.location.origin + itemUrl
+            );
             // Vue Router doesn't handle same-page navigation so we use
             // the native browser location API for anchor navigation.
-            // if (route.path === hitPathname) {
-            //   window.location.assign(window.location.origin + itemUrl);
-            // } else {
-            //   router.push(itemUrl);
-            // }
-            window.location.href = url;
+            if (route.path === hitPathname) {
+              window.location.assign(window.location.origin + itemUrl);
+            } else {
+              router.push(itemUrl);
+            }
           },
         },
     hitComponent: userOptions.hitComponent
@@ -174,7 +175,7 @@ const initialize = async (userOptions: DocSearchOptions) => {
                   event.preventDefault();
                 }
 
-                router.push(hit.url);
+                window.location.href = hit.url;
               },
             },
           };
