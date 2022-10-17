@@ -137,9 +137,9 @@ const initialize = async (userOptions: DocSearchOptions) => {
             // Vue Router doesn't handle same-page navigation so we use
             // the native browser location API for anchor navigation.
             if (route.path === hitPathname) {
-              window.location.assign(window.location.origin + itemUrl);
+              window.location.href = window.location.origin + itemUrl;
             } else {
-              router.push(itemUrl);
+              window.location.href = itemUrl;
             }
           },
         },
