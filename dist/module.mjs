@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { defineNuxtModule, addComponentsDir, addPlugin, addServerHandler } from '@nuxt/kit';
-import defu from 'defu';
+import { defineNuxtModule, addComponentsDir, isNuxt2, addPlugin, addImportsDir, addServerHandler } from '@nuxt/kit';
+import { defu } from 'defu';
 import algoliasearch from 'algoliasearch';
 import scraper from 'metadata-scraper';
 
@@ -90,7 +90,7 @@ const module = defineNuxtModule({
     name: "@nuxtjs/algolia",
     configKey: "algolia",
     compatibility: {
-      nuxt: "^3.0.0 || ^2.16.0",
+      nuxt: "^3.0.0-rc.9 || ^2.16.0",
       bridge: true
     }
   },
@@ -146,17 +146,7 @@ const module = defineNuxtModule({
         global: true
       });
     }
-    if (nuxt?.options?.runtimeConfig?.public?.algolia) {
-      nuxt.options.runtimeConfig.public.algolia = defu(nuxt.options.runtimeConfig.algolia, {
-        apiKey: options.apiKey,
-        applicationId: options.applicationId,
-        lite: options.lite,
-        instantSearch: options.instantSearch,
-        docSearch: options.docSearch,
-        recommend: options.recommend,
-        globalIndex: options.globalIndex
-      });
-    } else {
+    if (isNuxt2() && !nuxt?.options?.runtimeConfig?.public?.algolia) {
       nuxt.options.publicRuntimeConfig.algolia = defu(nuxt.options.publicRuntimeConfig.algolia, {
         apiKey: options.apiKey,
         applicationId: options.applicationId,
@@ -167,6 +157,16 @@ const module = defineNuxtModule({
         globalIndex: options.globalIndex
       });
     }
+    nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {};
+    nuxt.options.runtimeConfig.public.algolia = defu(nuxt.options.runtimeConfig.algolia, {
+      apiKey: options.apiKey,
+      applicationId: options.applicationId,
+      lite: options.lite,
+      instantSearch: options.instantSearch,
+      docSearch: options.docSearch,
+      recommend: options.recommend,
+      globalIndex: options.globalIndex
+    });
     if (options.instantSearch) {
       nuxt.options.build.transpile.push("vue-instantsearch/vue3");
       if (typeof options.instantSearch === "object") {
@@ -181,9 +181,7 @@ const module = defineNuxtModule({
       }
     }
     addPlugin(resolve(runtimeDir, "plugin"));
-    nuxt.hook("autoImports:dirs", (dirs) => {
-      dirs.push(resolve(runtimeDir, "composables"));
-    });
+    addImportsDir(resolve(runtimeDir, "composables"));
     if (options?.indexer && Object.keys(options?.indexer).length) {
       const cmsProvider = Object.keys(options.indexer)[0];
       nuxt.options.runtimeConfig.algoliaIndexer = defu(nuxt.options.runtimeConfig.algoliaIndexer, {

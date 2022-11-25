@@ -1005,8 +1005,8 @@ interface DocSearchOptions {
      *
      * {@link https://docsearch.algolia.com/docs/api#getmissingresultsurl}
      */
-    getMissingResultsUrl?: ({ query: string }: {
-        query: any;
+    getMissingResultsUrl?: (opts: {
+        query: string;
     }) => string;
     /**
      * The facetFilters to use in your search parameters.
@@ -1053,11 +1053,6 @@ interface ModuleBaseOptions {
     recommend?: boolean;
     docSearch?: Partial<DocSearchOptions>;
     indexer?: Indexer;
-}
-declare module '@nuxt/schema' {
-    interface PublicRuntimeConfig {
-        algolia: ModuleBaseOptions;
-    }
 }
 interface ModuleOptions extends ModuleBaseOptions {
     crawler?: {
